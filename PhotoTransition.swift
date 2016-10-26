@@ -14,23 +14,26 @@ class PhotoTransition: BaseTransition {
     override func presentTransition(containerView: UIView, fromViewController: UIViewController, toViewController: UIViewController) {
         let fromView = fromViewController.childViewControllers[0].childViewControllers[0] as! NewsFeedViewController
         let toView = toViewController as! PhotoViewController
+        let fromImage = fromView.selectedImage!
+        let toImage = toView.photoImageView!
         
         photo = UIImageView()
-        photo.image = fromView.selectedImage.image
-        photo.frame = fromView.selectedImage.frame
-        photo.contentMode = fromView.selectedImage.contentMode
+        photo.image = fromImage.image
+        photo.frame = containerView.convert(fromImage.frame, to: fromImage.superview)
+        photo.contentMode = fromImage.contentMode
         
         containerView.addSubview(photo)
         toView.view.alpha = 0
-        toView.photoImageView.isHidden = true
+        toImage.isHidden = true
+        fromImage.isHidden = true
         
         UIView.animate(withDuration: duration, animations: {
             toViewController.view.alpha = 1
-            self.photo.frame = toView.photoImageView.frame
+            self.photo.frame = containerView.convert(toImage.frame, to: toImage.superview)
             self.photo.contentMode = toView.photoImageView.contentMode
         }) { (finished: Bool) -> Void in
             self.photo.removeFromSuperview()
-            toView.photoImageView.isHidden = false
+            toImage.isHidden = false
             self.finish()
         }
     }
@@ -38,24 +41,26 @@ class PhotoTransition: BaseTransition {
     override func dismissTransition(containerView: UIView, fromViewController: UIViewController, toViewController: UIViewController) {
         let fromView = fromViewController as! PhotoViewController
         let toView = toViewController.childViewControllers[0].childViewControllers[0] as! NewsFeedViewController
-
+        let fromImage = fromView.photoImageView!
+        let toImage = toView.selectedImage!
+        
         photo = UIImageView()
-        photo.image = fromView.photoImageView.image
-        photo.frame = fromView.photoImageView.frame
-        photo.contentMode = fromView.photoImageView.contentMode
-        
+        photo.image = fromImage.image
+        photo.frame = containerView.convert(fromImage.frame, to: fromImage.superview)
+        photo.contentMode = fromImage.contentMode
+
         containerView.addSubview(photo)
-        
-        fromViewController.view.alpha = 1
-        toView.selectedImage.alpha = 0
+        toView.view.alpha = 0
+        toImage.isHidden = true
+        fromImage.isHidden = true
         
         UIView.animate(withDuration: duration, animations: {
-            fromViewController.view.alpha = 0
-            self.photo.frame = toView.selectedImage.frame
-            self.photo.contentMode = toView.selectedImage.contentMode
+            toView.view.alpha = 1
+            self.photo.frame = containerView.convert(toImage.frame, to: toImage.superview)
+            self.photo.contentMode = toImage.contentMode
         }) { (finished: Bool) -> Void in
             self.photo.removeFromSuperview()
-            toView.selectedImage.alpha = 1
+            toImage.isHidden = false
             self.finish()
         }
     }
